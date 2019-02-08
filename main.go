@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"os"
 	"regexp"
+	"strconv"
+	"time"
 
 	"github.com/akira/go-puppetdb"
 	"github.com/docopt/docopt-go"
@@ -30,6 +32,15 @@ func ReadParams(configfile string) map[string]string {
 	ConfigParams["puppetdb_port"] = cfg.Section("vault_secrets").Key("puppetdb_port").String()
 	ConfigParams["vault_host"] = cfg.Section("vault_secrets").Key("vault_host").String()
 	ConfigParams["vault_token"] = cfg.Section("vault_secrets").Key("vault_token").String()
+	ConfigParams["vault_ssl"] = cfg.Section("vault_secrets").Key("vault_ssl").String()
+	ConfigParams["vault_port"] = cfg.Section("vault_secrets").Key("vault_port").String()
+	ConfigParams["vault_path"] = cfg.Section("vault_secrets").Key("vault_path").String()
+	ConfigParams["vault_keyname"] = cfg.Section("vault_secrets").Key("vault_keyname").String()
+	ConfigParams["min_digits"] = cfg.Section("vault_secrets").Key("min_digits").String()
+	ConfigParams["max_digits"] = cfg.Section("vault_secrets").Key("max_digits").String()
+	ConfigParams["min_symbols"] = cfg.Section("vault_secrets").Key("min_symbols").String()
+	ConfigParams["max_symbols"] = cfg.Section("vault_secrets").Key("max_symbols").String()
+	ConfigParams["pass_lenght"] = cfg.Section("vault_secrets").Key("pass_lenght").String()
 
 	return ConfigParams
 }
@@ -73,12 +84,16 @@ Options:
 	arguments, _ := docopt.Parse(usage, nil, true, "root-password 1.0", false)
 	vaultParams := ReadParams(arguments["--config"].(string))
 	allHosts := queryPuppetDB(vaultParams["puppetdb_host"], vaultParams["puppetdb_port"])
-	var vaultHTTPProto = "https"
+	var pwLenght = vaultParams["pass_lenght"]
 	var maxDigits = vaultParams["max_digits"]
 	var minDigits = vaultParams["min_digits"]
 	var minSymbols = vaultParams["min_symbols"]
 	var maxSymbols = vaultParams["max_symbols"]
-	if vaultParams["vault_ssl"] != "true" {
+	var vaultKEYName = vaultParams["vault_keyname"]
+	vaultHTTPProto := fmt.Sprintf("http")
+	if vaultParams["vault_ssl"] == "true" {
+		vaultHTTPProto = fmt.Sprintf("https")
+	} else {
 		vaultHTTPProto = fmt.Sprintf("http")
 	}
 
@@ -87,8 +102,11 @@ Options:
 
 	pathArg := vaultParams["vault_path"]
 	vaultCFG := api.DefaultConfig()
-	vaultCFG.Address = fmt.Sprintf("%v://%v:%v", vaultHTTPProto, vaultParams["vault_host"], vaultParams["vault_port"])
-
+	if vaultParams["vault_port"] != "443" {
+		vaultCFG.Address = fmt.Sprintf("%v://%v:%v", vaultHTTPProto, vaultParams["vault_host"], vaultParams["vault_port"])
+	} else {
+		vaultCFG.Address = fmt.Sprintf("%v://%v", vaultHTTPProto, vaultParams["vault_host"])
+	}
 	var err error
 	vClient, err := api.NewClient(vaultCFG)
 	if err != nil {
@@ -99,16 +117,21 @@ Options:
 	vault := vClient.Logical()
 
 	for _, host := range allHosts {
-		min := 2
-		max := 6
-		rndDig := rand.Intn(maxDigits-minDigits) + minDigits
-		rndSym := rand.Intn(maxSymbols-minSymbols) + minSymbols
-		pass, _ := password.Generate(10, rndDig, 0, false, false)
-		//HostPass[host] = pass
+		intpwLenght, err := strconv.Atoi(pwLenght)
+		intmaxDigits, err := strconv.Atoi(maxDigits)
+		intminDigits, err := strconv.Atoi(minDigits)
+		intmaxSymbols, err := strconv.Atoi(maxSymbols)
+		intminSymbols, err := strconv.Atoi(minSymbols)
 
+		rand.Seed(time.Now().UnixNano())
+		rndDig := intminDigits + rand.Intn(intmaxDigits-intminDigits+1)
+		rndSym := intminSymbols + rand.Intn(intmaxSymbols-intminSymbols+1)
+
+		pass, _ := password.Generate(intpwLenght, rndDig, rndSym, false, false)
+		fmt.Println(pass)
 		secret := make(map[string]interface{})
 		secret["value"] = pass
-		HostpathArg := fmt.Sprintf("%v/%v", pathArg, host)
+		HostpathArg := fmt.Sprintf("%v/%v/%v", pathArg, host, vaultKEYName)
 
 		_, err = vault.Write(HostpathArg, secret)
 		if err != nil {
