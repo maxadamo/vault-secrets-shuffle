@@ -97,9 +97,6 @@ Options:
 		vaultHTTPProto = fmt.Sprintf("http")
 	}
 
-	// var HostPass map[string]string
-	// HostPass = make(map[string]string)
-
 	pathArg := vaultParams["vault_path"]
 	vaultCFG := api.DefaultConfig()
 	if vaultParams["vault_port"] != "443" {
@@ -128,11 +125,12 @@ Options:
 		rndSym := intminSymbols + rand.Intn(intmaxSymbols-intminSymbols+1)
 
 		pass, _ := password.Generate(intpwLenght, rndDig, rndSym, false, false)
-		fmt.Println(pass)
+		//data := make(map[string]map[string]interface{})
+		//data["secret"]["value"] = pass
 		secret := make(map[string]interface{})
 		secret["value"] = pass
-		HostpathArg := fmt.Sprintf("%v/%v/%v", pathArg, host, vaultKEYName)
-
+		HostpathArg := fmt.Sprintf("/%v/data/%v/%v", pathArg, host, vaultKEYName)
+		//_, err = vault.Write(HostpathArg, data)
 		_, err = vault.Write(HostpathArg, secret)
 		if err != nil {
 			log.Fatal(err)
@@ -145,7 +143,7 @@ Options:
 		if s == nil {
 			log.Fatal("secret was nil")
 		}
-
+		log.Printf("/secret/data/%v/%v/%v", pathArg, host, vaultKEYName)
 		log.Printf("%#v", *s)
 	}
 
