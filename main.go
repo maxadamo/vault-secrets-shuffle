@@ -25,13 +25,13 @@ func ReadParams(configfile string) map[string]string {
 		os.Exit(1)
 	}
 
-	acmeParams := make(map[string]string)
-	acmeParams["puppetdb_host"] = cfg.Section("geant_acme").Key("puppetdb_host").String()
-	acmeParams["puppetdb_port"] = cfg.Section("geant_acme").Key("puppetdb_port").String()
-	acmeParams["vault_host"] = cfg.Section("geant_acme").Key("vault_host").String()
-	acmeParams["vault_token"] = cfg.Section("geant_acme").Key("vault_token").String()
+	ConfigParams := make(map[string]string)
+	ConfigParams["puppetdb_host"] = cfg.Section("vault_secrets").Key("puppetdb_host").String()
+	ConfigParams["puppetdb_port"] = cfg.Section("vault_secrets").Key("puppetdb_port").String()
+	ConfigParams["vault_host"] = cfg.Section("vault_secrets").Key("vault_host").String()
+	ConfigParams["vault_token"] = cfg.Section("vault_secrets").Key("vault_token").String()
 
-	return acmeParams
+	return ConfigParams
 }
 
 // queryPuppetDB queries the puppetdb for all hosts
@@ -73,21 +73,21 @@ Options:
 	arguments, _ := docopt.Parse(usage, nil, true, "root-password 1.0", false)
 	vaultParams := ReadParams(arguments["--config"].(string))
 	allHosts := queryPuppetDB(vaultParams["puppetdb_host"], vaultParams["puppetdb_port"])
-
-	var HostPass map[string]string
-	HostPass = make(map[string]string)
-
-	for _, host := range allHosts {
-		min := 2
-		max := 6
-		rndNum := rand.Intn(max-min) + min
-		pass, _ := password.Generate(10, rndNum, 0, false, false)
-		HostPass[host] = pass
+	var vaultHTTPProto = "https"
+	var maxDigits = vaultParams["max_digits"]
+	var minDigits = vaultParams["min_digits"]
+	var minSymbols = vaultParams["min_symbols"]
+	var maxSymbols = vaultParams["max_symbols"]
+	if vaultParams["vault_ssl"] != "true" {
+		vaultHTTPProto = fmt.Sprintf("http")
 	}
 
-	//pathArg := vaultParams["vault_path"]
+	// var HostPass map[string]string
+	// HostPass = make(map[string]string)
+
+	pathArg := vaultParams["vault_path"]
 	vaultCFG := api.DefaultConfig()
-	vaultCFG.Address = fmt.Sprintf("https://%v", vaultParams["vault_host"])
+	vaultCFG.Address = fmt.Sprintf("%v://%v:%v", vaultHTTPProto, vaultParams["vault_host"], vaultParams["vault_port"])
 
 	var err error
 	vClient, err := api.NewClient(vaultCFG)
@@ -96,25 +96,26 @@ Options:
 	}
 
 	vClient.SetToken(vaultParams["vault_token"])
-	//vault := vClient.Logical()
+	vault := vClient.Logical()
 
-	secret := make(map[string]interface{})
-	secret["value"] = "test secret"
-	for k, v := range secret {
-		fmt.Printf("Hostname[%s] password[%s]\n", k, v)
-	}
+	for _, host := range allHosts {
+		min := 2
+		max := 6
+		rndDig := rand.Intn(maxDigits-minDigits) + minDigits
+		rndSym := rand.Intn(maxSymbols-minSymbols) + minSymbols
+		pass, _ := password.Generate(10, rndDig, 0, false, false)
+		//HostPass[host] = pass
 
-	/*
-		for hostKey, passValue := range HostPass {
-			//fmt.Printf("Hostname[%s] password[%s]\n", k, v)
-			secret[hostKey] = passValue
-		}
-		_, err = vault.Write(pathArg, secret)
+		secret := make(map[string]interface{})
+		secret["value"] = pass
+		HostpathArg := fmt.Sprintf("%v/%v", pathArg, host)
+
+		_, err = vault.Write(HostpathArg, secret)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		s, err := vault.Read(pathArg)
+		s, err := vault.Read(HostpathArg)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -123,5 +124,6 @@ Options:
 		}
 
 		log.Printf("%#v", *s)
-	*/
+	}
+
 }
