@@ -15,7 +15,7 @@ vault_host = vault.yourdomain.org
 vault_path = test/toast
 ```
 
-and you can run the tool:
+and you can run the tool (right now, it will only print hosts and passwords):
 
 ```bash
 vault-secrets-shuffle --config /path/to/file.conf
