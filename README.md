@@ -5,7 +5,7 @@ It is meant to be used in conjunction with [hiera_vault](https://github.com/pete
 
 # WIP: please wait
 
-You need to create a configuration file as following (beware of file permissions: it contains the token):
+You need to create a configuration file as following (beware of file permissions, as it contains the token):
 
 ```ini
 [vault_params]
