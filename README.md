@@ -7,7 +7,9 @@ It is meant to be used in conjunction with [hiera_vault](https://github.com/pete
 
 ## configuration
 
-You need a configuration file with one `vault` section as following (beware of file permissions):
+- you have setup a kv v2 store on Vault
+- you have puppet Hiera connected to vault and your lookup includes certnames/fqdn
+- you have a configuration file with one `vault` section as following (beware of file permissions):
 
 ```ini
 [vault]
