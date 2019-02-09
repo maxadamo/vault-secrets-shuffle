@@ -90,6 +90,7 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 		//data["secret"]["value"] = pass
 		secret := make(map[string]interface{})
 		secret["value"] = pass
+		log.Println(secret)
 		HostpathArg := fmt.Sprintf("/%v/data/%v/%v", patharg, host, vaultkeyname)
 		//_, err = vault.Write(HostpathArg, data)
 		_, err = vault.Write(HostpathArg, secret)

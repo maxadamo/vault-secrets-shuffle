@@ -1,15 +1,18 @@
 # vault-secrets-shuffle
 
-the application fetches the nodes definition from PuppetDB, generate a random secret and store them to Vault.
+Fetches the nodes definition from PuppetDB, generate a random secret and store them to Vault.
+
 It is meant to be used in conjunction with [hiera_vault](https://github.com/petems/petems-hiera_vault)
 
 # WIP: please wait
 
 ## configuration
 
-- you have setup a kv v2 store on Vault
-- you have puppet Hiera connected to vault and your lookup includes certnames/fqdn
-- you have a configuration file with one `vault` section as following (beware of file permissions):
+you have:
+
+- a kv v2 store on Vault
+- puppet Hiera connected to Vault through [hiera_vault](https://github.com/petems/petems-hiera_vault) and your lookups include certnames/fqdn
+- a configuration file with one `vault` section as following (beware of file permissions):
 
 ```ini
 [vault]
