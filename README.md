@@ -5,10 +5,12 @@ It is meant to be used in conjunction with [hiera_vault](https://github.com/pete
 
 # WIP: please wait
 
-You need to create a configuration file as following (beware of file permissions, as it contains the token):
+## configuration
+
+You need a configuration file with one `vault` section as following (beware of file permissions):
 
 ```ini
-[vault_params]
+[vault]
 # Vault parameters
 vault_token = xxxxxxxxxxx
 vault_ssl = true
@@ -34,3 +36,10 @@ and you can run the tool (right now, it will only print hosts and passwords):
 ```bash
 vault-secrets-shuffle --config /path/to/file.conf
 ```
+
+## compatibility
+
+tested against:
+
+- puppetdb 6.2
+- vault 1.0.2
