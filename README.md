@@ -33,7 +33,9 @@ puppetdb_host = puppetdb.yourdomain.org
 puppetdb_port = 8080
 ```
 
-and you can run the tool (right now, it will only print hosts and passwords):
+## usage
+
+you can run the tool as following:
 
 ```bash
 vault-secrets-shuffle --config /path/to/file.conf
