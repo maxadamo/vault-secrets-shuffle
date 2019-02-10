@@ -36,7 +36,7 @@ puppetdb_port = 8080
 
 ## usage
 
-you can just run the tool with `--help`:
+you can run the tool with `--help` to check all options, or you can just run:
 
 ```bash
 vault-secrets-shuffle --config /path/to/file.conf
@@ -57,11 +57,11 @@ you can use `build.sh` from this repo
 
 not tested with self-signed certificate
 
-we depends on the following issues (meaning that you can store keys on Vault, but you can't use them effectively):
+while we could use a KV v1, this is not very safe with bulk action.
+
+Hence we depends on the following issues to use the KV v2 (which means that you can store keys on a v2 Vault backend, but you can't use them effectively from hiera):
 
 - [petems/petems-hiera_vault#23](petems/petems-hiera_vault#23)
 - [hashicorp/vault-ruby#194](hashicorp/vault-ruby#194)
 - [hashicorp/vault-ruby#195](hashicorp/vault-ruby#195)
 - [hashicorp/vault-ruby#196](hashicorp/vault-ruby#196)
-
-I could easily allow usage of KV V1, but it's so much unsafe for a bulk action that doesn't make any sense

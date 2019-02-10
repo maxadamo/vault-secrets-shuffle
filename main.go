@@ -62,7 +62,7 @@ func queryPuppetDB(puppetdbhost string, puppetdbport string) []string {
 }
 
 // writeSecrets upload secrets to Vault
-func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol string, minsymbol string, vaulturl string, vaulttoken string, allhosts []string, patharg string, vaultkeyname string, debuginfo bool) {
+func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol string, minsymbol string, vaulturl string, vaulttoken string, allhosts []string, patharg string, vaultkeyname string, debuginfo bool, keystore string) {
 	vaultCFG := api.DefaultConfig()
 	vaultCFG.Address = fmt.Sprintf(vaulturl)
 	var err error
@@ -88,12 +88,15 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 		pass, _ := password.Generate(intpwLenght, rndDig, rndSym, false, false)
 
 		secret := make(map[string]interface{})
-		// this line is a reminder for KV version 1
-		// secret["value"] = pass
-		secret["data"] = map[string]interface{}{
-			"value": pass,
-		}
 		HostpathArg := fmt.Sprintf("/%v/data/%v/%v", patharg, host, vaultkeyname)
+		if keystore == "1" {
+			HostpathArg = fmt.Sprintf("/%v/%v/%v", patharg, host, vaultkeyname)
+			secret["value"] = pass
+		} else {
+			secret["data"] = map[string]interface{}{
+				"value": pass,
+			}
+		}
 		_, err = vault.Write(HostpathArg, secret)
 		if err != nil {
 			log.Fatal(err)
@@ -121,18 +124,23 @@ func main() {
   - upload the secrets to vault.
 
 Usage:
-  root-password --config CONFIG [--debug]
-  root-password (-h | --help)
+  vault-secrets-shuffle --config CONFIG [--kv=kv] [--debug]
+  vault-secrets-shuffle (-h | --help)
 	
 Options:
   -h --help            Show this screen.
   -c, --config=CONFIG  Config file.
-  -d, --debug          Print password a and full key path (OPTIONAL)`
+  -k, --kv=kv          Keystore Version. [default: 2]
+  -d, --debug          Print password and full key path (OPTIONAL)`
 
-	arguments, _ := docopt.Parse(usage, nil, true, "root-password 1.0", false)
+	arguments, _ := docopt.Parse(usage, nil, true, "vault-secrets-shuffle 1.0", false)
 	debugInformation := false
 	if arguments["--debug"] == true {
 		debugInformation = true
+	}
+	kv := arguments["--kv"].(string)
+	if kv != "1" && kv != "2" {
+		log.Fatal("Error: KeyStore version can only be 1 or 2")
 	}
 	vaultParams := ReadParams(arguments["--config"].(string))
 	allHosts := queryPuppetDB(vaultParams["puppetdb_host"], vaultParams["puppetdb_port"])
@@ -147,12 +155,12 @@ Options:
 	if vaultParams["vault_ssl"] == "true" {
 		vaultHTTPProto = fmt.Sprintf("https")
 	}
-	vaultURL := fmt.Sprintf("%v://%v", vaultHTTPProto, vaultParams["vault_host"])
-	if vaultParams["vault_port"] != "443" && vaultParams["vault_port"] != "80" {
-		vaultURL = fmt.Sprintf("%v://%v:%v", vaultHTTPProto, vaultParams["vault_host"], vaultParams["vault_port"])
-	}
+	vaultURL := fmt.Sprintf("%v://%v:%v", vaultHTTPProto, vaultParams["vault_host"], vaultParams["vault_port"])
 	pathArg := vaultParams["vault_path"]
 
-	writeSecrets(pwLenght, maxDigits, minDigits, maxSymbols, minSymbols, vaultURL, vaultToken, allHosts, pathArg, vaultKEYName, debugInformation)
+	writeSecrets(
+		pwLenght, maxDigits, minDigits, maxSymbols,
+		minSymbols, vaultURL, vaultToken, allHosts,
+		pathArg, vaultKEYName, debugInformation, kv)
 
 }
