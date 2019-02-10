@@ -133,7 +133,7 @@ Options:
   -k, --kv=kv          Keystore Version. [default: 2]
   -d, --debug          Print password and full key path (OPTIONAL)`
 
-	arguments, _ := docopt.Parse(usage, nil, true, "vault-secrets-shuffle 1.0", false)
+	arguments, _ := docopt.Parse(usage, nil, true, "vault-secrets-shuffle 1.1", false)
 	debugInformation := false
 	if arguments["--debug"] == true {
 		debugInformation = true
