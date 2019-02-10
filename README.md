@@ -57,11 +57,11 @@ you can use `build.sh` from this repo
 
 not tested with self-signed certificate
 
-while we could use a KV v1, this is not very safe with bulk action.
+while we could use a KV v1, this is not very safe with a bulk action.
 
 Hence we depends on the following issues to use the KV v2 (which means that you can store keys on a v2 Vault backend, but you can't use them effectively from hiera):
 
-- [petems/petems-hiera_vault#23](petems/petems-hiera_vault#23)
-- [hashicorp/vault-ruby#194](hashicorp/vault-ruby#194)
-- [hashicorp/vault-ruby#195](hashicorp/vault-ruby#195)
-- [hashicorp/vault-ruby#196](hashicorp/vault-ruby#196)
+- [petems/petems-hiera_vault#23](https://github.com/petems/petems-hiera_vault/issues/23)
+- [hashicorp/vault-ruby#194](https://github.com/hashicorp/vault-ruby/issues/194)
+- [hashicorp/vault-ruby#195](https://github.com/hashicorp/vault-ruby/issues/195)
+- [hashicorp/vault-ruby#196](https://github.com/hashicorp/vault-ruby/issues/196)
