@@ -88,6 +88,8 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 		pass, _ := password.Generate(intpwLenght, rndDig, rndSym, false, false)
 
 		secret := make(map[string]interface{})
+		// this line is a reminder for KV version 1
+		// secret["value"] = pass
 		secret["data"] = map[string]interface{}{
 			"value": pass,
 		}

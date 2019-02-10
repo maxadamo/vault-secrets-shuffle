@@ -4,8 +4,6 @@ Fetches the nodes definition from PuppetDB, generate a random secret and store t
 
 It is meant to be used in conjunction with [hiera_vault](https://github.com/petems/petems-hiera_vault)
 
-# WIP: please wait
-
 ## configuration
 
 you have:
@@ -41,7 +39,9 @@ puppetdb_port = 8080
 you can run the tool as following:
 
 ```bash
-vault-secrets-shuffle --config /path/to/file.conf
+vault-secrets-shuffle --help
+vault-secrets-shuffle --config /path/to/file.conf --debug
+vault-secrets-shuffle --config /path/to/file.conf --debug
 ```
 
 ## compatibility
@@ -50,3 +50,16 @@ tested against:
 
 - puppetdb 6.2
 - vault 1.0.2
+
+## doubts/stoppers
+
+not tested with a self-signed certificate
+
+it depends on the following issues (meaning that you can store keys on Vault, but you can't use them effectively):
+
+- petems/petems-hiera_vault#23
+- hashicorp/vault-ruby#195
+- hashicorp/vault-ruby#194
+- hashicorp/vault-ruby#196
+
+I could easily allow usage of KV V1, but it's so much unsafe in a bulk action that doesn't make any sense
