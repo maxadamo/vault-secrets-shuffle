@@ -107,15 +107,18 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 		}
 		if debuginfo == true {
 			log.Printf("password %v for %v stored as vault:%v", pass, host, HostpathArg)
+		} else {
+			log.Printf("changed password for %v", host)
 		}
 	}
 }
 
 func main() {
 
-	usage := `Root password changer:
-  - iterates all VMs registered in the PuppetDB
-  - generate random passwords for each VM and upload them to vault.
+	usage := `Vault Secrets Shuffler:
+  - iterates all VMs registered in PuppetDB
+  - generate generate random secrets different for each host
+  - upload the secrets to vault.
 
 Usage:
   root-password --config CONFIG [--debug]
@@ -124,7 +127,7 @@ Usage:
 Options:
   -h --help            Show this screen.
   -c, --config=CONFIG  Config file.
-  -d, --debug          Print debug information`
+  -d, --debug          Print password a and full key path (OPTIONAL)`
 
 	arguments, _ := docopt.Parse(usage, nil, true, "root-password 1.0", false)
 	debugInformation := false
