@@ -1,6 +1,6 @@
 # vault-secrets-shuffle
 
-Fetches the nodes definition from PuppetDB, generate a random secret and store them to Vault.
+Fetches the nodes definition from PuppetDB, generate random secrets different for each host and store them to Vault.
 
 It is meant to be used in conjunction with [hiera_vault](https://github.com/petems/petems-hiera_vault)
 
