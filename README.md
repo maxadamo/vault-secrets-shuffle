@@ -57,9 +57,9 @@ not tested with a self-signed certificate
 
 it depends on the following issues (meaning that you can store keys on Vault, but you can't use them effectively):
 
-- petems/petems-hiera_vault#23
-- hashicorp/vault-ruby#195
-- hashicorp/vault-ruby#194
-- hashicorp/vault-ruby#196
+- [petems/petems-hiera_vault#23](petems/petems-hiera_vault#23)
+- [hashicorp/vault-ruby#194](hashicorp/vault-ruby#194)
+- [hashicorp/vault-ruby#195](hashicorp/vault-ruby#195)
+- [hashicorp/vault-ruby#196](hashicorp/vault-ruby#196)
 
 I could easily allow usage of KV V1, but it's so much unsafe in a bulk action that doesn't make any sense
