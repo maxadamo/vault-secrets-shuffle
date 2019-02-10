@@ -62,7 +62,7 @@ func queryPuppetDB(puppetdbhost string, puppetdbport string) []string {
 }
 
 // writeSecrets upload secrets to Vault
-func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol string, minsymbol string, vaulturl string, vaulttoken string, allhosts []string, patharg string, vaultkeyname string) {
+func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol string, minsymbol string, vaulturl string, vaulttoken string, allhosts []string, patharg string, vaultkeyname string, debuginfo bool) {
 	vaultCFG := api.DefaultConfig()
 	vaultCFG.Address = fmt.Sprintf(vaulturl)
 	var err error
@@ -86,18 +86,16 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 		rndSym := intminSymbols + rand.Intn(intmaxSymbols-intminSymbols+1)
 
 		pass, _ := password.Generate(intpwLenght, rndDig, rndSym, false, false)
-		//data := make(map[string]map[string]interface{})
-		//data["secret"]["value"] = pass
+
 		secret := make(map[string]interface{})
-		secret["value"] = pass
-		log.Println(secret)
+		secret["data"] = map[string]interface{}{
+			"value": pass,
+		}
 		HostpathArg := fmt.Sprintf("/%v/data/%v/%v", patharg, host, vaultkeyname)
-		//_, err = vault.Write(HostpathArg, data)
 		_, err = vault.Write(HostpathArg, secret)
 		if err != nil {
 			log.Fatal(err)
 		}
-
 		s, err := vault.Read(HostpathArg)
 		if err != nil {
 			log.Fatal(err)
@@ -105,9 +103,9 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 		if s == nil {
 			log.Fatal("secret was nil")
 		}
-		// temporary debug
-		log.Printf("/%v/data/%v/%v", patharg, host, vaultkeyname)
-		log.Printf("%#v", *s)
+		if debuginfo == true {
+			log.Printf("password %v for %v stored as vault:%v", pass, host, HostpathArg)
+		}
 	}
 }
 
@@ -118,14 +116,19 @@ func main() {
   - generate random passwords for each VM and upload them to vault.
 
 Usage:
-  root-password --config CONFIG
+  root-password --config CONFIG [--debug]
   root-password (-h | --help)
 	
 Options:
   -h --help            Show this screen.
-  -c, --config=CONFIG  Config file.`
+  -c, --config=CONFIG  Config file.
+  -d, --debug          Print debug information`
 
 	arguments, _ := docopt.Parse(usage, nil, true, "root-password 1.0", false)
+	debugInformation := false
+	if arguments["--debug"] == true {
+		debugInformation = true
+	}
 	vaultParams := ReadParams(arguments["--config"].(string))
 	allHosts := queryPuppetDB(vaultParams["puppetdb_host"], vaultParams["puppetdb_port"])
 	pwLenght := vaultParams["pass_lenght"]
@@ -138,8 +141,6 @@ Options:
 	vaultHTTPProto := fmt.Sprintf("http")
 	if vaultParams["vault_ssl"] == "true" {
 		vaultHTTPProto = fmt.Sprintf("https")
-	} else {
-		vaultHTTPProto = fmt.Sprintf("http")
 	}
 	vaultURL := fmt.Sprintf("%v://%v", vaultHTTPProto, vaultParams["vault_host"])
 	if vaultParams["vault_port"] != "443" && vaultParams["vault_port"] != "80" {
@@ -147,6 +148,6 @@ Options:
 	}
 	pathArg := vaultParams["vault_path"]
 
-	writeSecrets(pwLenght, maxDigits, minDigits, maxSymbols, minSymbols, vaultURL, vaultToken, allHosts, pathArg, vaultKEYName)
+	writeSecrets(pwLenght, maxDigits, minDigits, maxSymbols, minSymbols, vaultURL, vaultToken, allHosts, pathArg, vaultKEYName, debugInformation)
 
 }
