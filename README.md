@@ -36,12 +36,10 @@ puppetdb_port = 8080
 
 ## usage
 
-you can run the tool as following:
+you can just run the tool with `--help`:
 
 ```bash
-vault-secrets-shuffle --help
-vault-secrets-shuffle --config /path/to/file.conf --debug
-vault-secrets-shuffle --config /path/to/file.conf --debug
+vault-secrets-shuffle --config /path/to/file.conf
 ```
 
 ## compatibility
