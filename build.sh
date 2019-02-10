@@ -9,6 +9,7 @@ PATH=$PATH:$(go env GOPATH)/bin
 GOPATH=$(go env GOPATH)
 export BIN_NAME PATH GOPATH
 
+rm -rf github.com/maxadamo/${BIN_NAME}
 go get -ldflags "-s -w" github.com/maxadamo/${BIN_NAME}
 upx --brute ${GOPATH}/bin/${BIN_NAME}
 
