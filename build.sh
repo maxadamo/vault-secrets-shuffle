@@ -1,16 +1,16 @@
 #!/bin/bash
 if ! which upx &>/dev/null; then
     echo "please download upx here https://github.com/upx/upx/releases"
-    echo "and store the executable in your PATH"
+    echo "and store the executable within your \$PATH"
     exit
 fi
-export GOPATH=${HOME}/vault-secrets-shuffle
-REPO_PATH=${GOPATH}/src/github.com/maxadamo/vault-secrets-shuffle
+BIN_NAME=vault-secrets-shuffle
+PATH=$PATH:$(go env GOPATH)/bin
+GOPATH=$(go env GOPATH)
+export BIN_NAME PATH GOPATH
 
-go get github.com/maxadamo/vault-secrets-shuffle
-rm -f github.com/bin/vault-secrets-shuffle
-cd ${GOPATH}/src/github.com/maxadamo/vault-secrets-shuffle
-go build -ldflags "-s -w"
-upx --brute ${REPO_PATH}/vault-secrets-shuffle
+go get -ldflags "-s -w" github.com/maxadamo/${BIN_NAME}
+upx --brute ${GOPATH}/bin/${BIN_NAME}
 
-echo -e "\nthe binary was compiled and it is avilable as:\n - ${REPO_PATH}/vault-secrets-shuffle"
+echo -e "\nthe binary was compiled and it is avilable as:\n - ${GOPATH}/bin/${BIN_NAME}"
+
