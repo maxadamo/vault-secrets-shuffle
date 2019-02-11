@@ -36,11 +36,33 @@ puppetdb_port = 8080
 
 ## usage
 
-you can run the tool with `--help` to check all options, or you can just run:
+you can run the tool with `--help` to check all options:
+
+```bash
+vault-secrets-shuffle --help
+Vault Secrets Shuffler:
+  * iterates all hosts registered in PuppetDB
+  * generate generate different random secrets for each host
+  * upload the secrets to vault
+
+Usage:
+  vault-secrets-shuffle --config CONFIG [--kv=kv] [--debug]
+  vault-secrets-shuffle (-h | --help)
+
+Options:
+  -h --help            Show this screen.
+  -c, --config=CONFIG  Config file.
+  -k, --kv=kv          Keystore Version. [default: 2]
+  -d, --debug          Print password and full key path (OPTIONAL)
+```
+
+or you can simply run:
 
 ```bash
 vault-secrets-shuffle --config /path/to/file.conf
 ```
+
+
 
 ## compatibility
 

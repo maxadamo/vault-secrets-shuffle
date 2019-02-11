@@ -126,7 +126,7 @@ func main() {
 Usage:
   vault-secrets-shuffle --config CONFIG [--kv=kv] [--debug]
   vault-secrets-shuffle (-h | --help)
-	
+
 Options:
   -h --help            Show this screen.
   -c, --config=CONFIG  Config file.

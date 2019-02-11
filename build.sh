@@ -13,5 +13,5 @@ rm -rf github.com/maxadamo/${BIN_NAME}
 go get -ldflags "-s -w" github.com/maxadamo/${BIN_NAME}
 upx --brute ${GOPATH}/bin/${BIN_NAME}
 
-echo -e "\nthe binary was compiled and it is avilable as:\n - ${GOPATH}/bin/${BIN_NAME}"
+echo -e "\nthe binary was compiled and it is avilable as:\n - ${GOPATH}/bin/${BIN_NAME}\n"
 
