@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/akira/go-puppetdb"
@@ -74,6 +75,7 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 	vault := vClient.Logical()
 
 	for _, host := range allhosts {
+		hostUnquoted := strings.Replace(host, "\"", "", -1)
 		intpwLenght, err := strconv.Atoi(pwlenght)
 		intmaxDigits, err := strconv.Atoi(maxdigit)
 		intminDigits, err := strconv.Atoi(mindigit)
@@ -87,13 +89,13 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 		pass, _ := password.Generate(intpwLenght, rndDig, rndSym, false, false)
 
 		secret := make(map[string]interface{})
-		HostpathArg := fmt.Sprintf("/%v/data/%v/%v", patharg, host, vaultkeyname)
+		HostpathArg := fmt.Sprintf("/%v/data/%v", patharg, hostUnquoted)
 		if keystore == "1" {
-			HostpathArg = fmt.Sprintf("/%v/%v/%v", patharg, host, vaultkeyname)
+			HostpathArg = fmt.Sprintf("/%v/%v/%v", patharg, hostUnquoted, vaultkeyname)
 			secret["value"] = pass
 		} else {
 			secret["data"] = map[string]interface{}{
-				"value": pass,
+				vaultkeyname: pass,
 			}
 		}
 		_, err = vault.Write(HostpathArg, secret)
@@ -108,9 +110,9 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 			log.Fatal("secret was nil")
 		}
 		if debuginfo == true {
-			log.Printf("password %v for %v stored as vault:%v", pass, host, HostpathArg)
+			log.Printf("password %v for %v stored as vault:%v", pass, hostUnquoted, HostpathArg)
 		} else {
-			log.Printf("changed password for %v", host)
+			log.Printf("changed password for %v", hostUnquoted)
 		}
 	}
 }
