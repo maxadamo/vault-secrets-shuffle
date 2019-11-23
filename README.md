@@ -22,16 +22,16 @@ vault_port = 443
 vault_path = test/toast
 vault_keyname = vault_root_password
 
+# PuppetDB parameters
+puppetdb_host = puppetdb.yourdomain.org
+puppetdb_port = 8080
+
 # Password properties
 pass_lenght = 10
 min_digits = 2
 max_digits = 6
 min_symbols = 0
 max_symbols = 0
-
-# PuppetDB parameters
-puppetdb_host = puppetdb.yourdomain.org
-puppetdb_port = 8080
 ```
 
 ## usage

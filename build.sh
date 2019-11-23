@@ -9,9 +9,14 @@ PATH=$PATH:$(go env GOPATH)/bin
 GOPATH=$(go env GOPATH)
 export BIN_NAME PATH GOPATH
 
-rm -rf github.com/maxadamo/${BIN_NAME}
+rm -rf ${GOPATH}/src/github.com/maxadamo/${BIN_NAME}
 go get -ldflags "-s -w" github.com/maxadamo/${BIN_NAME}
 # upx --brute ${GOPATH}/bin/${BIN_NAME}
+
+if [ $? -gt 0 ]; then
+  echo -e "\nthere was an error while compiling the code\n"
+  exit
+fi
 
 echo -e "\nthe binary was compiled and it is avilable as:\n - ${GOPATH}/bin/${BIN_NAME}\n"
 

@@ -44,10 +44,9 @@ func ReadParams(configfile string) map[string]string {
 }
 
 // queryPuppetDB queries the puppetdb for all hosts
-func queryPuppetDB(puppetdbhost string, puppetdbport string) []string {
+func queryPuppetDB(puppetdbhost string, puppetdbport int) []string {
 	hostSlice := make([]string, 0)
-	PuppetdbURL := fmt.Sprintf("http://%v:%s/pdb/query", puppetdbhost, puppetdbport)
-	client := puppetdb.NewClient(PuppetdbURL, true)
+	client := puppetdb.NewClient(puppetdbhost, puppetdbport, true)
 	resp, _ := client.FactPerNode("fqdn")
 
 	for _, value := range resp {
@@ -143,7 +142,11 @@ Options:
 		log.Fatal("Error: KeyStore version can only be 1 or 2")
 	}
 	vaultParams := ReadParams(arguments["--config"].(string))
-	allHosts := queryPuppetDB(vaultParams["puppetdb_host"], vaultParams["puppetdb_port"])
+	puppetDBport, err := strconv.Atoi(vaultParams["puppetdb_port"])
+	if err != nil {
+		log.Fatalf("Error: puppetdb_port must be an integer: %s", err)
+	}
+	allHosts := queryPuppetDB(vaultParams["puppetdb_host"], puppetDBport)
 	pwLenght := vaultParams["pass_lenght"]
 	maxDigits := vaultParams["max_digits"]
 	minDigits := vaultParams["min_digits"]
