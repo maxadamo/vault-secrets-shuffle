@@ -89,13 +89,13 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 		pass, _ := password.Generate(intpwLenght, rndDig, rndSym, false, false)
 
 		secret := make(map[string]interface{})
-		HostpathArg := fmt.Sprintf("/%v/data/%v", patharg, hostUnquoted)
+		HostpathArg := fmt.Sprintf("/%v/data/%v/%v", patharg, hostUnquoted, vaultkeyname)
 		if keystore == "1" {
 			HostpathArg = fmt.Sprintf("/%v/%v/%v", patharg, hostUnquoted, vaultkeyname)
 			secret["value"] = pass
 		} else {
 			secret["data"] = map[string]interface{}{
-				vaultkeyname: pass,
+				"value": pass,
 			}
 		}
 		_, err = vault.Write(HostpathArg, secret)
