@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -62,7 +63,7 @@ func queryPuppetDB(puppetdbhost string, puppetdbport int) []string {
 }
 
 // writeSecrets upload secrets to Vault
-func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol string, minsymbol string, vaulturl string, vaulttoken string, allhosts []string, patharg string, vaultkeyname string, debuginfo bool, keystore string) {
+func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol string, minsymbol string, vaulturl string, vaulttoken string, allhosts []string, patharg string, vaultkeyname string, debuginfo bool, keystore string, writePath string) {
 	vaultCFG := api.DefaultConfig()
 	vaultCFG.Address = fmt.Sprintf(vaulturl)
 	var err error
@@ -72,15 +73,15 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 	}
 
 	vClient.SetToken(vaulttoken)
-	vault := vClient.Logical()
+	// vault := vClient.Logical()
 
 	for _, host := range allhosts {
 		hostUnquoted := strings.Replace(host, "\"", "", -1)
-		intpwLenght, err := strconv.Atoi(pwlenght)
-		intmaxDigits, err := strconv.Atoi(maxdigit)
-		intminDigits, err := strconv.Atoi(mindigit)
-		intmaxSymbols, err := strconv.Atoi(maxsymbol)
-		intminSymbols, err := strconv.Atoi(minsymbol)
+		intpwLenght, _ := strconv.Atoi(pwlenght)
+		intmaxDigits, _ := strconv.Atoi(maxdigit)
+		intminDigits, _ := strconv.Atoi(mindigit)
+		intmaxSymbols, _ := strconv.Atoi(maxsymbol)
+		intminSymbols, _ := strconv.Atoi(minsymbol)
 
 		rand.Seed(time.Now().UnixNano())
 		rndDig := intminDigits + rand.Intn(intmaxDigits-intminDigits+1)
@@ -98,19 +99,25 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 				"value": pass,
 			}
 		}
-		_, err = vault.Write(HostpathArg, secret)
-		if err != nil {
-			log.Fatal(err)
-		}
-		s, err := vault.Read(HostpathArg)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if s == nil {
-			log.Fatal("secret was nil")
+		//_, err = vault.Write(HostpathArg, secret)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//s, err := vault.Read(HostpathArg)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//if s == nil {
+		//	log.Fatal("secret was nil")
+		//}
+		if writePath != "nullifiedOuput" {
+			err := writeLines(fmt.Sprintf("host: %v has password: %v", hostUnquoted, pass), writePath)
+			if err != nil {
+				panic(err)
+			}
 		}
 		if debuginfo == true {
-			log.Printf("password %v for %v stored as vault:%v", pass, hostUnquoted, HostpathArg)
+			log.Printf("password %v for host %v stored as vault:%v", pass, hostUnquoted, HostpathArg)
 		} else {
 			log.Printf("changed password for %v", hostUnquoted)
 		}
@@ -125,12 +132,13 @@ func main() {
   - upload the secrets to vault.
 
 Usage:
-  vault-secrets-shuffle --config CONFIG [--kv=kv] [--debug]
+  vault-secrets-shuffle --config=CONFIG [--kv=kv] [--write=WRITE] [--debug]
   vault-secrets-shuffle (-h | --help)
 
 Options:
   -h --help            Show this screen.
-  -c, --config=CONFIG  Config file.
+  -c, --config CONFIG  Config file.
+  -w  --write WRITE    Output file (OPTIONAL).
   -k, --kv=kv          Keystore Version. [default: 2]
   -d, --debug          Print password and full key path (OPTIONAL)`
 
@@ -138,6 +146,19 @@ Options:
 	debugInformation := false
 	if arguments["--debug"] == true {
 		debugInformation = true
+	}
+	writeOutput := "nullifiedOuput"
+	if arguments["--write"] != nil {
+		writeOutput = arguments["--write"].(string)
+		zippetOut := fmt.Sprintf("%v.zip", writeOutput)
+		for _, element := range []string{writeOutput, zippetOut} {
+			err := os.Remove(element)
+			if err != nil {
+				fmt.Println(err)
+				//return
+			}
+		}
+
 	}
 	kv := arguments["--kv"].(string)
 	if kv != "1" && kv != "2" {
@@ -166,6 +187,11 @@ Options:
 	writeSecrets(
 		pwLenght, maxDigits, minDigits, maxSymbols,
 		minSymbols, vaultURL, vaultToken, allHosts,
-		pathArg, vaultKEYName, debugInformation, kv)
+		pathArg, vaultKEYName, debugInformation, kv,
+		writeOutput)
+
+	if writeOutput != "nullifiedOuput" {
+		zipEncrypt(writeOutput, 16)
+	}
 
 }

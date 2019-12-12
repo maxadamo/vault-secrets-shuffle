@@ -19,4 +19,3 @@ if [ $? -gt 0 ]; then
 fi
 
 echo -e "\nthe binary was compiled and it is avilable as:\n - ${GOPATH}/bin/${BIN_NAME}\n"
-
