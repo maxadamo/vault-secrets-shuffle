@@ -142,9 +142,9 @@ Usage:
   vault-secrets-shuffle -h | --help
 
 Options:
-  -h --help           Show this screen.
-  -c --config=CONFIG  Config file.
-  -w --write=WRITE    Output file (OPTIONAL).
+  -h --help           Show this screen
+  -c --config=CONFIG  Config file
+  -w --write=WRITE    Output file (OPTIONAL)
   -k --kv=kv          Keystore Version. [default: 2]
   -d --debug          Print password and full key path (OPTIONAL)
   -v --version        Print version exit

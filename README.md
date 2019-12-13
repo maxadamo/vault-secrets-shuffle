@@ -1,6 +1,6 @@
 # vault-secrets-shuffle
 
-Fetches the nodes definition from PuppetDB, generate random secrets different for each host and store them to Vault.
+Fetches nodes definitions from PuppetDB, generate random secrets for each host and store them to Vault.
 
 It is meant to be used in conjunction with [hiera_vault](https://github.com/petems/petems-hiera_vault)
 
@@ -41,19 +41,24 @@ you can run the tool with `--help` to check all options:
 ```bash
 vault-secrets-shuffle --help
 Vault Secrets Shuffler:
-  * iterates all hosts registered in PuppetDB
-  * generate generate different random secrets for each host
-  * upload the secrets to vault
+  - iterates all VMs registered in PuppetDB
+  - generate generate random secrets different for each host
+  - upload the secrets to vault.
 
 Usage:
-  vault-secrets-shuffle --config CONFIG [--kv=kv] [--debug]
-  vault-secrets-shuffle (-h | --help)
+  vault-secrets-shuffle --config=CONFIG [--kv=kv] [--write=WRITE] [--debug]
+  vault-secrets-shuffle -v | --version
+  vault-secrets-shuffle -b | --build
+  vault-secrets-shuffle -h | --help
 
 Options:
-  -h --help            Show this screen.
-  -c, --config=CONFIG  Config file.
-  -k, --kv=kv          Keystore Version. [default: 2]
-  -d, --debug          Print password and full key path (OPTIONAL)
+  -h --help           Show this screen
+  -c --config=CONFIG  Config file
+  -w --write=WRITE    Output file (OPTIONAL)
+  -k --kv=kv          Keystore Version. [default: 2]
+  -d --debug          Print password and full key path (OPTIONAL)
+  -v --version        Print version exit
+  -b --build          Print version and build information and exit
 ```
 
 or you can simply run:
@@ -75,8 +80,6 @@ you can use `build.sh` from this repo
 
 ## doubts/stoppers
 
-Not tested with self-signed certificate
+Some change is already on the work on [petems/petems-hiera_vault#43](https://github.com/petems/petems-hiera_vault/pull/43)
 
-While we could use a KV v1, this is not entirely safe. We depends on the following issue:
-
-[petems/petems-hiera_vault#23](https://github.com/petems/petems-hiera_vault/issues/23)
+These changes will allow to use Kv v2, which is safer to use (as it has password history)
