@@ -32,8 +32,6 @@ func zipEncrypt(fileName string, passLenght int) {
 	zipPassword := randPass(passLenght)
 	zipName := fmt.Sprintf("%v.zip", fileName)
 	content, err := ioutil.ReadFile(fileName)
-	//contentByte, err := ioutil.ReadFile(fileName)
-	//content := string(contentByte)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +45,7 @@ func zipEncrypt(fileName string, passLenght int) {
 
 	defer zipw.Close()
 
-	w, err := zipw.Encrypt(fileName, zipPassword, zip.AES256Encryption)
+	w, err := zipw.Encrypt(fileName, zipPassword, zip.StandardEncryption)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,6 +64,6 @@ func zipEncrypt(fileName string, passLenght int) {
 	}
 
 	fmt.Printf(strings.Repeat("=", 72))
-	fmt.Printf("\npassword file saved as %v and encrypt with password %v\n", zipName, zipPassword)
+	fmt.Printf("\nThe passwords have been saved to: %v\nThe password to decrypt the zip file is: %v\n", zipName, zipPassword)
 
 }

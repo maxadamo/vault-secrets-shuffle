@@ -17,8 +17,12 @@ import (
 	"github.com/sethvargo/go-password/password"
 )
 
-var firstRe = regexp.MustCompile("^(.+) fqdn ")
-var secondRe = regexp.MustCompile("}")
+var (
+	appVersion string
+	buildTime  string
+	firstRe    = regexp.MustCompile("^(.+) fqdn ")
+	secondRe   = regexp.MustCompile("}")
+)
 
 // ReadParams Reads info from config file
 func ReadParams(configfile string) map[string]string {
@@ -73,7 +77,7 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 	}
 
 	vClient.SetToken(vaulttoken)
-	// vault := vClient.Logical()
+	vault := vClient.Logical()
 
 	for _, host := range allhosts {
 		hostUnquoted := strings.Replace(host, "\"", "", -1)
@@ -99,17 +103,17 @@ func writeSecrets(pwlenght string, maxdigit string, mindigit string, maxsymbol s
 				"value": pass,
 			}
 		}
-		//_, err = vault.Write(HostpathArg, secret)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//s, err := vault.Read(HostpathArg)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//if s == nil {
-		//	log.Fatal("secret was nil")
-		//}
+		_, err = vault.Write(HostpathArg, secret)
+		if err != nil {
+			log.Fatal(err)
+		}
+		s, err := vault.Read(HostpathArg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if s == nil {
+			log.Fatal("secret was nil")
+		}
 		if writePath != "nullifiedOuput" {
 			err := writeLines(fmt.Sprintf("host: %v has password: %v", hostUnquoted, pass), writePath)
 			if err != nil {
@@ -133,21 +137,35 @@ func main() {
 
 Usage:
   vault-secrets-shuffle --config=CONFIG [--kv=kv] [--write=WRITE] [--debug]
-  vault-secrets-shuffle (-h | --help)
+  vault-secrets-shuffle -v | --version
+  vault-secrets-shuffle -b | --build
+  vault-secrets-shuffle -h | --help
 
 Options:
-  -h --help            Show this screen.
-  -c, --config CONFIG  Config file.
-  -w  --write WRITE    Output file (OPTIONAL).
-  -k, --kv=kv          Keystore Version. [default: 2]
-  -d, --debug          Print password and full key path (OPTIONAL)`
+  -h --help           Show this screen.
+  -c --config=CONFIG  Config file.
+  -w --write=WRITE    Output file (OPTIONAL).
+  -k --kv=kv          Keystore Version. [default: 2]
+  -d --debug          Print password and full key path (OPTIONAL)
+  -v --version        Print version exit
+  -b --build          Print version and build information and exit`
 
-	arguments, _ := docopt.Parse(usage, nil, true, "vault-secrets-shuffle 1.1", false)
+	// Annoyingly docopt tries to use 'version' the way he wants and I am using build
+
+	arguments, _ := docopt.Parse(usage, nil, true, appVersion, false)
+
+	if arguments["--build"] == true {
+		fmt.Printf("vault-secrets-shuffle version: %v, built on: %v\n", appVersion, buildTime)
+		os.Exit(0)
+	}
+
 	debugInformation := false
 	if arguments["--debug"] == true {
 		debugInformation = true
 	}
+
 	writeOutput := "nullifiedOuput"
+	fmt.Printf("\nRemoving stale files if they exist")
 	if arguments["--write"] != nil {
 		writeOutput = arguments["--write"].(string)
 		zippetOut := fmt.Sprintf("%v.zip", writeOutput)
@@ -155,10 +173,8 @@ Options:
 			err := os.Remove(element)
 			if err != nil {
 				fmt.Println(err)
-				//return
 			}
 		}
-
 	}
 	kv := arguments["--kv"].(string)
 	if kv != "1" && kv != "2" {
@@ -191,7 +207,7 @@ Options:
 		writeOutput)
 
 	if writeOutput != "nullifiedOuput" {
-		zipEncrypt(writeOutput, 16)
+		zipEncrypt(writeOutput, 24)
 	}
 
 }
