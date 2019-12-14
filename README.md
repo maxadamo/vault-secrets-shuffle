@@ -1,5 +1,11 @@
 # vault-secrets-shuffle
 
+1. [configuration](#configuration)
+1. [usage](#usage)
+1. [compatibility](#compatibility)
+1. [build](#build)
+1. [notes](#notes)
+
 Fetches nodes definitions from PuppetDB, generate random secrets for each host and store them to Vault.
 
 It is meant to be used in conjunction with [hiera_vault](https://github.com/petems/petems-hiera_vault)
@@ -78,8 +84,8 @@ tested against:
 
 you can use `build.sh` from this repo
 
-## doubts/stoppers
+## notes
 
-Some change is already on the work on [petems/petems-hiera_vault#43](https://github.com/petems/petems-hiera_vault/pull/43)
+Some change is already in the work on [petems/petems-hiera_vault#43](https://github.com/petems/petems-hiera_vault/pull/43)
 
 These changes will allow to use Kv v2, which is safer to use (as it has password history)
