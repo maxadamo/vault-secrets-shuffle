@@ -165,7 +165,7 @@ Options:
 	}
 
 	writeOutput := "nullifiedOuput"
-	fmt.Printf("\nRemoving stale files if they exist")
+	fmt.Printf("\nRemoving stale files if they exist\n")
 	if arguments["--write"] != nil {
 		writeOutput = arguments["--write"].(string)
 		zippetOut := fmt.Sprintf("%v.zip", writeOutput)
